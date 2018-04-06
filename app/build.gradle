@@ -10,6 +10,8 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "APP_BASE_URL", '"https://192.168.1.28/kid_protect/public/"'
     }
     buildTypes {
         release {
@@ -29,4 +31,10 @@ dependencies {
     testImplementation 'junit:junit:4.12'
 
     implementation 'com.android.support:design:27.1.0'
+
+    implementation 'com.squareup.retrofit2:retrofit:2.2.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.2.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.3.0'
+    implementation 'com.google.code.gson:gson:2.6.1'
+
 }

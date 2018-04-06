@@ -26,8 +26,7 @@ public class SyncUtils {
    // @TargetApi(Build.VERSION_CODES.FROYO)
     public static void CreateSyncAccount(Context context) {
         boolean newAccount = false;
-        boolean setupComplete = PreferenceManager
-                .getDefaultSharedPreferences(context).getBoolean(PREF_SETUP_COMPLETE, false);
+        boolean setupComplete = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(PREF_SETUP_COMPLETE, false);
 
         // Create account, if it's missing. (Either first run, or user has deleted account.)
         Account account = GenericAccountService.GetAccount(ACCOUNT_TYPE);
@@ -36,6 +35,7 @@ public class SyncUtils {
         if (accountManager.addAccountExplicitly(account, null, null)) {
             ContentResolver.setIsSyncable(account, CONTENT_AUTHORITY, 1);
             ContentResolver.setSyncAutomatically(account, CONTENT_AUTHORITY, true);
+            ContentResolver.setMasterSyncAutomatically(true);
         //    ContentResolver.addPeriodicSync(account, CONTENT_AUTHORITY, new Bundle(), SYNC_FREQUENCY);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
                 // we can enable inexact timers in our periodic sync
@@ -44,19 +44,16 @@ public class SyncUtils {
                         .setSyncAdapter(account, CONTENT_AUTHORITY)
                         .setExtras(new Bundle()).build();
                 ContentResolver.requestSync(request);
+                ContentResolver.addPeriodicSync(account, CONTENT_AUTHORITY, new Bundle(), SYNC_FREQUENCY);
             } else {
-                PeriodicSync periodicSync = new PeriodicSync(account,CONTENT_AUTHORITY,new Bundle(),SYNC_FREQUENCY);
-                
-                ContentResolver.addPeriodicSync(account, CONTENT_AUTHORITY, new Bundle(), SYNC_INTERVAL);
+                ContentResolver.requestSync(account,CONTENT_AUTHORITY, null);
+                ContentResolver.addPeriodicSync(account, CONTENT_AUTHORITY, new Bundle(), SYNC_FREQUENCY);
             }
-
             newAccount = true;
-
         }
         if (newAccount || !setupComplete) {
             TriggerRefresh();
-            PreferenceManager.getDefaultSharedPreferences(context).edit()
-                    .putBoolean(PREF_SETUP_COMPLETE, true).commit();
+            PreferenceManager.getDefaultSharedPreferences(context).edit().putBoolean(PREF_SETUP_COMPLETE, true).apply();
         }
     }
 
